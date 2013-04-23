@@ -63,6 +63,7 @@ namespace ServiceStack.WebHost.Endpoints
                         MetadataRedirectPath = null,
                         DefaultContentType = null,
                         AllowJsonpRequests = true,
+                        AllowNonHttpOnlyCookies = false,
                         DebugMode = false,
                         DefaultDocuments = new List<string> {
 							"default.htm",
@@ -107,6 +108,7 @@ namespace ServiceStack.WebHost.Endpoints
                         DefaultJsonpCacheExpiration = new TimeSpan(0, 20, 0),
                         MetadataVisibility = EndpointAttributes.Any,
                         Return204NoContentForEmptyResponse = true,
+                        AllowPartialResponses = true,
                     };
 
                     if (instance.ServiceStackHandlerFactoryPath == null)
@@ -169,6 +171,8 @@ namespace ServiceStack.WebHost.Endpoints
             this.DefaultJsonpCacheExpiration = instance.DefaultJsonpCacheExpiration;
             this.MetadataVisibility = instance.MetadataVisibility;
             this.Return204NoContentForEmptyResponse = Return204NoContentForEmptyResponse;
+            this.AllowNonHttpOnlyCookies = instance.AllowNonHttpOnlyCookies;
+            this.AllowPartialResponses = instance.AllowPartialResponses;
         }
 
         public static string GetAppConfigPath()
@@ -188,7 +192,7 @@ namespace ServiceStack.WebHost.Endpoints
             return File.Exists(configPath) ? configPath : null;
         }
 
-        const string NamespacesAppSettingsKey = "servicestack.razor.namespaces";
+        const string NamespacesAppSettingsKey = "servicestack.razor2.namespaces";
         private static HashSet<string> razorNamespaces;
         public static HashSet<string> RazorNamespaces
         {
@@ -211,7 +215,7 @@ namespace ServiceStack.WebHost.Endpoints
                                     .ForEach(x => razorNamespaces.Add(x.AnyAttribute("namespace").Value));
                 }
 
-                //E.g. <add key="servicestack.razor.namespaces" value="System,ServiceStack.Text" />
+                //E.g. <add key="servicestack.razor2.namespaces" value="System,ServiceStack.Text" />
                 if (ConfigUtils.GetNullableAppSetting(NamespacesAppSettingsKey) != null)
                 {
                     ConfigUtils.GetListFromAppSetting(NamespacesAppSettingsKey)
@@ -416,6 +420,9 @@ namespace ServiceStack.WebHost.Endpoints
 
         public TimeSpan DefaultJsonpCacheExpiration { get; set; }
         public bool Return204NoContentForEmptyResponse { get; set; }
+        public bool AllowPartialResponses { get; set; }
+
+        public bool AllowNonHttpOnlyCookies { get; set; }
 
         private string defaultOperationNamespace;
         public string DefaultOperationNamespace
